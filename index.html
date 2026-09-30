@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows XP Bliss - Personal Blog OS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tahoma:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --win-bg: #ece9d8;
+            --win-dark: #716f64;
+            --win-darker: #000000;
+            --win-light: #ffffff;
+            --win-blue: #0055ea;
+            --win-blue-light: #3b82f6;
+        }
+
+        body {
+            background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2560&q=80') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Tahoma', sans-serif;
+            user-select: none;
+            overflow: hidden;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Classic Windows XP Luna / Classic Bevel Borders */
+        .win-box {
+            background-color: var(--win-bg);
+            border: 2px solid #0055ea;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+            box-shadow: 2px 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .win-inset {
+            background-color: #ffffff;
+            border: 1px solid #7f9db9;
+        }
+
+        .win-btn {
+            background: linear-gradient(180deg, #ffffff 0%, #ece9d8 100%);
+            border: 1px solid #716f64;
+            font-family: 'Tahoma', sans-serif;
+            font-size: 11px;
+            padding: 3px 12px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .win-btn:active {
+            background: linear-gradient(180deg, #d8d2bd 0%, #ece9d8 100%);
+        }
+
+        /* Window Styling */
+        .window {
+            position: absolute;
+            min-width: 340px;
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .window.minimized {
+            display: none;
+        }
+
+        .title-bar {
+            background: linear-gradient(180deg, #0058e6 0%, #3a93ff 3%, #0055ea 50%, #0033cc 100%);
+            color: white;
+            padding: 6px 8px;
+            font-weight: bold;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            cursor: default;
+        }
+
+        .title-bar-controls {
+            display: flex;
+            gap: 3px;
+        }
+
+        .title-btn {
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(180deg, #ffffff 0%, #dfdbcd 100%);
+            border: 1px solid #00237e;
+            font-size: 10px;
+            font-weight: bold;
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+
+        .title-btn:hover {
+            background: linear-gradient(180deg, #ffde59 0%, #ff9100 100%);
+        }
+
+        /* Desktop Grid */
+        .desktop-icon {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin: 8px;
+            border: 1px dotted transparent;
+            text-align: center;
+        }
+
+        .desktop-icon:hover {
+            border: 1px dotted rgba(255, 255, 255, 0.6);
+            background-color: rgba(0, 85, 234, 0.2);
+            border-radius: 4px;
+        }
+
+        .desktop-icon span {
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
+            margin-top: 4px;
+            word-break: break-word;
+            line-height: 1.1;
+        }
+
+        /* Taskbar */
+        .taskbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 38px;
+            background: linear-gradient(180deg, #245db5 0%, #173b82 50%, #122d66 100%);
+            display: flex;
+            align-items: center;
+            padding: 2px;
+            z-index: 1000;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.3);
+        }
+
+        .start-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: bold;
+            font-style: italic;
+            color: white;
+            background: linear-gradient(180deg, #3c803c 0%, #285a28 50%, #1e461e 100%);
+            border: 1px solid #52a852;
+            border-radius: 16px;
+            padding: 2px 14px 2px 6px;
+            height: 32px;
+            cursor: pointer;
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.4);
+        }
+        .start-btn:hover {
+            background: linear-gradient(180deg, #449144 0%, #2f682f 50%, #235023 100%);
+        }
+
+        .taskbar-divider {
+            width: 2px;
+            height: 28px;
+            background-color: #0e2550;
+            margin: 0 6px;
+        }
+
+        .task-tabs {
+            display: flex;
+            gap: 4px;
+            flex-grow: 1;
+            overflow-x: auto;
+        }
+
+        .task-tab {
+            background: linear-gradient(180deg, #3d7ee8 0%, #2159c4 50%, #1748a8 100%);
+            border: 1px solid #103378;
+            color: white;
+            padding: 3px 10px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            max-width: 150px;
+            min-width: 110px;
+            cursor: pointer;
+            border-radius: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .task-tab.active {
+            background: linear-gradient(180deg, #1b4bb3 0%, #12388c 50%, #0d2c6e 100%);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+            font-weight: bold;
+        }
+
+        .tray {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 10px;
+            height: 32px;
+            background: linear-gradient(180deg, #12388c 0%, #0d2c6e 100%);
+            color: white;
+            font-size: 11px;
+            border-left: 1px solid #091e47;
+        }
+
+        /* Start Menu XP Style */
+        .start-menu {
+            position: absolute;
+            bottom: 40px;
+            left: 2px;
+            width: 260px;
+            background-color: #ffffff;
+            border: 1px solid #00237e;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            display: none;
+            z-index: 2000;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        .start-menu.open {
+            display: block;
+        }
+
+        .start-menu-header {
+            background: linear-gradient(180deg, #2b6ed9 0%, #1c52b8 100%);
+            color: white;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .start-menu-items {
+            padding: 6px;
+            background-color: #ffffff;
+        }
+
+        .start-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .start-item:hover {
+            background-color: #316ac5;
+            color: white;
+        }
+
+        .start-menu-footer {
+            background: linear-gradient(180deg, #d3e5f5 0%, #b3d1f0 100%);
+            padding: 8px;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #99bcee;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 14px;
+            height: 14px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border: 2px solid #f1f1f1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body id="mainBody" class="relative">
+
+    <div id="desktop" class="absolute inset-0 bottom-[38px] grid grid-flow-col grid-rows-6 gap-2 p-3 items-start justify-start">
+        
+        <!-- Icon 1: My Documents / My Blogs -->
+        <div class="desktop-icon" onclick="openWindow('myDocsWindow')">
+            <svg width="36" height="36" viewBox="0 0 32 32"><path d="M2 6h10l3 3h15v17H2V6z" fill="#ffd700" stroke="#b8860b"/><path d="M2 10h28v16H2V10z" fill="#ffec8b" stroke="#b8860b"/></svg>
+            <span>My Blogs.dir</span>
+        </div>
+
+        <!-- Icon 2: Decap CMS Blog Admin -->
+        <div class="desktop-icon" onclick="openWindow('adminWindow')">
+            <svg width="36" height="36" viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="24" fill="#0055ea" stroke="#00237e"/><path d="M8 10h16M8 16h16M8 22h10" stroke="#fff" stroke-width="2"/></svg>
+            <span>CMS Admin.exe</span>
+        </div>
+
+        <!-- Icon 3: Guestbook & Stats -->
+        <div class="desktop-icon" onclick="openWindow('guestbookWindow')">
+            <svg width="36" height="36" viewBox="0 0 32 32"><rect x="4" y="2" width="24" height="28" fill="#fff" stroke="#333"/><path d="M8 8h16M8 14h16M8 20h10" stroke="#0055ea" stroke-width="2"/></svg>
+            <span>Guestbook.exe</span>
+        </div>
+
+        <!-- Icon 4: Display Properties (Wallpaper Editor) -->
+        <div class="desktop-icon" onclick="openWindow('displayWindow')">
+            <svg width="36" height="36" viewBox="0 0 32 32"><rect x="2" y="4" width="28" height="20" fill="#2074e8" stroke="#003399"/><rect x="10" y="24" width="12" height="4" fill="#888"/><rect x="8" y="28" width="16" height="2" fill="#666"/></svg>
+            <span>Display Props</span>
+        </div>
+
+        <!-- Icon 5: About Me -->
+        <div class="desktop-icon" onclick="openWindow('aboutWindow')">
+            <svg width="36" height="36" viewBox="0 0 32 32"><rect x="6" y="2" width="20" height="28" fill="#fff" stroke="#444"/><path d="M10 8h12M10 12h12M10 16h8" stroke="#666" stroke-width="2"/><circle cx="16" cy="22" r="3" fill="#0055ea"/></svg>
+            <span>About Me.txt</span>
+        </div>
+
+        <!-- Icon 6: Recycle Bin -->
+        <div class="desktop-icon" onclick="openWindow('recycleWindow')">
+            <svg width="36" height="36" viewBox="0 0 32 32"><path d="M8 8h16l-2 20H10L8 8z" fill="#cccccc" stroke="#666"/><path d="M6 6h20v2H6z" fill="#999" stroke="#555"/><path d="M13 2v4h6V2H13z" fill="#888" stroke="#444"/></svg>
+            <span>Recycle Bin</span>
+        </div>
+
+    </div>
+
+
+    <!-- Window 1: My Documents (Blogs Explorer) -->
+    <div id="myDocsWindow" class="window win-box" style="top: 30px; left: 50px; width: 580px; height: 410px;" onmousedown="focusWindow('myDocsWindow')">
+        <div class="title-bar" onmousedown="startDrag(event, 'myDocsWindow')">
+            <div class="flex items-center gap-2">
+                <svg width="16" height="16" viewBox="0 0 32 32"><path d="M2 6h10l3 3h15v17H2V6z" fill="#ffd700"/></svg>
+                <span>Exploring - C:\My_Blogs (Markdown Store)</span>
+            </div>
+            <div class="title-bar-controls">
+                <div class="title-btn" onclick="minimizeWindow('myDocsWindow')">_</div>
+                <div class="title-btn" onclick="maximizeWindow('myDocsWindow')">□</div>
+                <div class="title-btn" onclick="closeWindow('myDocsWindow')">✕</div>
+            </div>
+        </div>
+        <div class="bg-[#ece9d8] px-2 py-1 flex gap-4 text-xs border-b border-[#d4d0c8]">
+            <span class="cursor-pointer underline">F</span>ile
+            <span class="cursor-pointer underline">E</span>dit
+            <span class="cursor-pointer underline">V</span>iew
+            <span class="cursor-pointer underline">T</span>ools
+            <span class="cursor-pointer underline">H</span>elp
+        </div>
+        <div class="bg-[#ece9d8] px-2 py-1.5 flex items-center gap-2 text-xs border-b border-[#bab7ae]">
+            <span>Address:</span>
+            <div class="win-inset flex-grow bg-white px-2 py-0.5 flex items-center gap-2">
+                <svg width="14" height="14" viewBox="0 0 32 32"><path d="M2 6h10l3 3h15v17H2V6z" fill="#ffd700"/></svg>
+                <span>C:\My Documents\Weblog\content</span>
+            </div>
+        </div>
+        <div class="flex flex-grow overflow-hidden bg-white">
+            <div class="w-1/3 border-r border-[#d4d0c8] p-3 bg-[#f6f5f0] text-xs space-y-2">
+                <p class="font-bold text-[#1c52b8]">Markdown Storage</p>
+                <p class="text-gray-600">Double-click any post to open it in Notepad and increment view count.</p>
+                <button class="win-btn w-full mt-2 font-bold" onclick="openWindow('adminWindow')">+ New Post (CMS)</button>
+            </div>
+            <div id="blogFileList" class="w-2/3 p-4 overflow-y-auto space-y-2 bg-white win-inset">
+                <!-- Dynamically populated blog files -->
+            </div>
+        </div>
+        <div class="bg-[#ece9d8] px-2 py-0.5 text-[11px] border-t border-[#bab7ae] flex justify-between">
+            <span id="fileCountStatus">0 object(s)</span>
+            <span>Local Weblog Store</span>
+        </div>
+    </div>
+
+    <!-- Window 2: Notepad Blog Reader -->
+    <div id="notepadWindow" class="window win-box hidden" style="top: 70px; left: 100px; width: 520px; height: 380px;" onmousedown="focusWindow('notepadWindow')">
+        <div class="title-bar" onmousedown="startDrag(event, 'notepadWindow')">
+            <div class="flex items-center gap-2">
+                <svg width="16" height="16" viewBox="0 0 32 32"><rect x="6" y="2" width="20" height="28" fill="#fff" stroke="#333"/><path d="M10 8h12M10 12h12" stroke="#666"/></svg>
+                <span id="notepadTitle">Untitled - Notepad</span>
+            </div>
+            <div class="title-bar-controls">
+                <div class="title-btn" onclick="minimizeWindow('notepadWindow')">_</div>
+                <div class="title-btn" onclick="maximizeWindow('notepadWindow')">□</div>
+                <div class="title-btn" onclick="closeWindow('notepadWindow')">✕</div>
+            </div>
+        </div>
+        <div class="bg-[#ece9d8] px-2 py-1 flex gap-4 text-xs border-b border-[#d4d0c8]">
+            <span class="cursor-pointer">File</span>
+            <span class="cursor-pointer">Edit</span>
+            <span class="cursor-pointer">Format</span>
+            <span class="cursor-pointer">Help</span>
+        </div>
+        <div class="flex-grow win-inset p-2 bg-white overflow-y-auto flex flex-col gap-2">
+            <textarea id="notepadContent" class="w-full h-full resize-none outline-none font-mono text-sm leading-relaxed" readonly></textarea>
+        </div>
+        <!-- Inline Comment Box inside Notepad reader -->
+        <div class="bg-[#f6f5f0] p-2 border-t border-[#bab7ae] flex gap-2 items-center">
+            <input type="text" id="postCommentAuthor" placeholder="Your Name" class="win-inset px-2 py-1 text-xs w-1/3">
+            <input type="text" id="postCommentText" placeholder="Leave a comment on this post..." class="win-inset px-2 py-1 text-xs flex-grow">
+            <button class="win-btn px-3 py-1 font-bold" onclick="submitPostComment()">Post</button>
+        </div>
+    </div>
+
+    <!-- Window 3: Decap CMS Blog Admin Panel -->
+    <div id="adminWindow" class="window win-box hidden" style="top: 50px; left: 130px; width: 560px; height: 440px;" onmousedown="focusWindow('adminWindow')">
+        <div class="title-bar" onmousedown="startDrag(event, 'adminWindow')">
+            <div class="flex items-center gap-2">
+                <svg width="16" height="16" viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="24" fill="#0055ea"/></svg>
+                <span>Decap CMS - Weblog Admin Panel</span>
+            </div>
+            <div class="title-bar-controls">
+                <div class="title-btn" onclick="minimizeWindow('adminWindow')">_</div>
+                <div class="title-btn" onclick="maximizeWindow('adminWindow')">□</div>
+                <div class="title-btn" onclick="closeWindow('adminWindow')">✕</div>
+            </div>
+        </div>
+        <div class="bg-[#ece9d8] px-3 py-2 border-b border-[#d4d0c8] flex justify-between items-center text-xs">
+            <span class="font-bold text-[#0055ea]">✨ Method 2 CMS: Publish New Markdown Entry</span>
+            <span class="text-gray-500">Auto-saves to Browser LocalStorage</span>
+        </div>
+        <div class="flex-grow p-4 bg-[#ece9d8] flex flex-col gap-3 overflow-y-auto">
+            <div>
+                <label class="block text-xs font-bold mb-1">Post Filename (.md / .txt):</label>
+                <input type="text" id="adminFileName" placeholder="my_new_adventure.txt" class="win-inset w-full px-2 py-1.5 text-xs outline-none font-mono">
+            </div>
+            <div>
+                <label class="block text-xs font-bold mb-1">Article Title:</label>
+                <input type="text" id="adminTitle" placeholder="Entering the Matrix in 2001" class="win-inset w-full px-2 py-1.5 text-xs outline-none">
+            </div>
+            <div class="flex-grow flex flex-col">
+                <label class="block text-xs font-bold mb-1">Markdown Body Content:</label>
+                <textarea id="adminBody" placeholder="Write your blog markdown here..." class="win-inset w-full flex-grow p-2 text-xs font-mono outline-none resize-none h-32"></textarea>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button class="win-btn px-4 py-1" onclick="closeWindow('adminWindow')">Cancel</button>
+                <button class="win-btn px-6 py-1 font-bold bg-blue-100 text-blue-900" onclick="publishNewBlogPost()">Publish Entry</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Window 4: Guestbook & Live Analytics / Comments Window -->
+    <div id="guestbookWindow" class="window win-box hidden" style="top: 90px; left: 160px; width: 520px; height: 420px;" onmousedown="focusWindow('guestbookWindow')">
+        <div class="title-bar" onmousedown="startDrag(event, 'guestbookWindow')">
+            <div class="flex items-center gap-2">
+                <svg width="16" height="16" viewBox="0 0 32 32"><rect x="4" y="2" width="24" height="28" fill="#fff" stroke="#333"/></svg>
+                <span>Visitor Guestbook & Activity Feed.exe</span>
+            </div>
+            <div class="title-bar-controls">
+                <div class="title-btn" onclick="minimizeWindow('guestbookWindow')">_</div>
+                <div class="title-btn" onclick="maximizeWindow('guestbookWindow')">□</div>
+                <div class="title-btn" onclick="closeWindow('guestbookWindow')">✕</div>
+            </div>
+        </div>
+        <div class="flex flex-col flex-grow p-3 bg-[#ece9d8] gap-3 overflow-y-auto">
+            <!-- Stats Bar -->
+            <div class="win-inset p-2.5 bg-blue-50 flex justify-around text-xs font-bold text-blue-900">
+                <div>👀 Total Views: <span id="statTotalViews" class="text-red-600 font-mono">1,428</span></div>
+                <div>📝 Published Posts: <span id="statPostCount" class="font-mono">3</span></div>
+                <div>💬 Total Comments: <span id="statCommentCount" class="font-mono">4</span></div>
+            </div>
+
+            <!-- Latest Comments across all posts -->
+            <div>
+                <p class="text-xs font-bold text-[#1c52b8] mb-1">Recent Comments across all Blog Posts:</p>
+                <div class="win-inset p-2 bg-white h-36 overflow-y-auto text-xs space-y-2 font-mono" id="globalCommentFeed">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Sign Guestbook -->
+            <div class="bg-[#f6f5f0] border border-[#d4d0c8] p-2.5 rounded space-y-2 text-xs">
+                <p class="font-bold text-[#1c52b8]">Leave your signature in the Guestbook:</p>
+                <div class="flex gap-2">
+                    <input type="text" id="visitorName" placeholder="Your Handle / Name" class="win-inset px-2 py-1 text-xs outline-none w-1/3">
+                    <input type="text" id="visitorComment" placeholder="Write your greetings..." class="win-inset px-2 py-1 text-xs outline-none flex-grow">
+                    <button class="win-btn px-4 py-1 font-bold" onclick="addGuestbookComment()">Sign</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Window 5: Display Properties (Wallpaper Editor) -->
+    <div id="displayWindow" class="window win-box hidden" style="top: 110px; left: 190px; width: 420px; height: 320px;" onmousedown="focusWindow('displayWindow')">
+        <div class="title-bar" onmousedown="startDrag(event, 'displayWindow')">
+            <div class="flex items-center gap-2">
+                <svg width="16" height="16" viewBox="0 0 32 32"><rect x="2" y="4" width="28" height="20" fill="#2074e8"/></svg>
+                <span>Display Properties - Wallpaper Editor</span>
+            </div>
+            <div class="title-bar-controls">
+                <div class="title-btn" onclick="minimizeWindow('displayWindow')">_</div>
+                <div class="title-btn" onclick="maximizeWindow('displayWindow')">□</div>
+                <div class="title-btn" onclick="closeWindow('displayWindow')">✕</div>
+            </div>
+        </div>
+        <div class="flex flex-col flex-grow p-4 bg-[#ece9d8] gap-4 justify-between">
+            <div class="space-y-3 text-xs">
+                <p class="font-bold text-blue-900">🎨 Customize Desktop Wallpaper (XP Bliss or Custom URL):</p>
+                <p class="text-gray-600">Paste any image direct URL below or select a classic preset to instantly apply it across your desktop.</p>
+                
+                <input type="text" id="wallpaperInput" placeholder="https://images.unsplash.com/photo-..." class="win-inset w-full px-2 py-1.5 text-xs outline-none">
+                
+                <div class="flex gap-2 pt-1">
+                    <button class="win-btn text-xs px-2 py-1" onclick="setPresetWallpaper('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2560&q=80')">Classic Bliss</button>
+                    <button class="win-btn text-xs px-2 py-1" onclick="setPresetWallpaper('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=2560&q=80')">Cyberpunk Night</button>
+                    <button class="win-btn text-xs px-2 py-1" onclick="setPresetWallpaper('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=2560&q=80')">Deep Cosmos</button>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 border-t border-[#d4d0c8] pt-3">
+                <button class="win-btn px-4 py-1" onclick="closeWindow('displayWindow')">Cancel</button>
+                <button class="win-btn px-6 py-1 font-bold bg-blue-100" onclick="applyCustomWallpaper()">Apply Wallpaper</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Window 6: About Me -->
+    <div id="aboutWindow" class="window win-box hidden" style="top: 130px; left: 220px; width: 380px; height: 280px;" onmousedown="focusWindow('aboutWindow')">
+        <div class="title-bar" onmousedown="startDrag(event, 'aboutWindow')">
+            <div class="flex items-center gap-2">
+                <svg width="16" height="16" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#0055ea"/></svg>
+                <span>About Me.txt - Notepad</span>
+            </div>
+            <div class="title-bar-controls">
+                <div class="title-btn" onclick="minimizeWindow('aboutWindow')">_</div>
+                <div class="title-btn" onclick="maximizeWindow('aboutWindow')">□</div>
+                <div class="title-btn" onclick="closeWindow('aboutWindow')">✕</div>
+            </div>
+        </div>
+        <div class="flex-grow win-inset p-3 bg-white font-mono text-xs overflow-y-auto leading-relaxed">
+            <p class="font-bold text-[#0055ea] mb-2">=== WINDOWS XP SYSTEM PROFILE ===</p>
+            <p><strong>Owner:</strong> Retro Blogger & Developer</p>
+            <p><strong>OS:</strong> Windows XP Professional (Editable Bliss Edition)</p>
+            <p><strong>CMS:</strong> Markdown / Decap Local Store</p>
+            <br>
+            <p><strong>Bio:</strong></p>
+            <p>Welcome to my fully interactive 2000s weblog OS! Publish new blogs instantly via the CMS admin panel, customize your Bliss wallpaper, and chat in the guestbook.</p>
+        </div>
+    </div>
+
+    <!-- Window 7: Recycle Bin -->
+    <div id="recycleWindow" class="window win-box hidden" style="top: 150px; left: 250px; width: 320px; height: 220px;" onmousedown="focusWindow('recycleWindow')">
+        <div class="title-bar" onmousedown="startDrag(event, 'recycleWindow')">
+            <div class="flex items-center gap-2">
+                <svg width="16" height="16" viewBox="0 0 32 32"><path d="M8 8h16l-2 20H10L8 8z" fill="#ccc"/></svg>
+                <span>Recycle Bin</span>
+            </div>
+            <div class="title-bar-controls">
+                <div class="title-btn" onclick="minimizeWindow('recycleWindow')">_</div>
+                <div class="title-btn" onclick="maximizeWindow('recycleWindow')">□</div>
+                <div class="title-btn" onclick="closeWindow('recycleWindow')">✕</div>
+            </div>
+        </div>
+        <div class="flex-grow win-inset p-4 bg-white text-xs flex flex-col items-center justify-center text-center space-y-2">
+            <svg width="40" height="40" viewBox="0 0 32 32"><path d="M8 8h16l-2 20H10L8 8z" fill="#ccc" stroke="#666"/></svg>
+            <p class="font-bold">Recycle Bin is empty.</p>
+            <p class="text-gray-500">No discarded files or deleted markdown entries here.</p>
+        </div>
+    </div>
+
+    <!-- Start Menu Popup -->
+    <div id="startMenu" class="start-menu">
+        <div class="start-menu-header">
+            <svg width="28" height="28" viewBox="0 0 32 32">
+                <rect x="2" y="2" width="13" height="13" fill="#f25022"/>
+                <rect x="17" y="2" width="13" height="13" fill="#7fba00"/>
+                <rect x="2" y="17" width="13" height="13" fill="#00a4ef"/>
+                <rect x="17" y="17" width="13" height="13" fill="#ffb900"/>
+            </svg>
+            <span>Windows XP User</span>
+        </div>
+        <div class="start-menu-items space-y-1">
+            <div class="start-item" onclick="openWindow('myDocsWindow'); toggleStartMenu();">
+                <svg width="20" height="20" viewBox="0 0 32 32"><path d="M2 6h10l3 3h15v17H2V6z" fill="#ffd700"/></svg>
+                <span><strong>My Blogs (Directory)</strong></span>
+            </div>
+            <div class="start-item" onclick="openWindow('adminWindow'); toggleStartMenu();">
+                <svg width="20" height="20" viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="24" fill="#0055ea"/></svg>
+                <span>CMS Admin Panel</span>
+            </div>
+            <div class="start-item" onclick="openWindow('guestbookWindow'); toggleStartMenu();">
+                <svg width="20" height="20" viewBox="0 0 32 32"><rect x="4" y="2" width="24" height="28" fill="#fff" stroke="#333"/></svg>
+                <span>Guestbook & Comments</span>
+            </div>
+            <div class="start-item" onclick="openWindow('displayWindow'); toggleStartMenu();">
+                <svg width="20" height="20" viewBox="0 0 32 32"><rect x="2" y="4" width="28" height="20" fill="#2074e8"/></svg>
+                <span>Display Wallpaper Settings</span>
+            </div>
+        </div>
+        <div class="start-menu-footer">
+            <button class="win-btn text-xs px-3 py-1 font-bold" onclick="triggerShutdown()">Log Off</button>
+            <button class="win-btn text-xs px-3 py-1 font-bold" onclick="triggerShutdown()">Turn Off Computer</button>
+        </div>
+    </div>
+
+    <!-- Taskbar -->
+    <div class="taskbar">
+        <button class="start-btn" onclick="toggleStartMenu()">
+            <svg width="20" height="20" viewBox="0 0 32 32">
+                <rect x="2" y="2" width="13" height="13" fill="#f25022"/>
+                <rect x="17" y="2" width="13" height="13" fill="#7fba00"/>
+                <rect x="2" y="17" width="13" height="13" fill="#00a4ef"/>
+                <rect x="17" y="17" width="13" height="13" fill="#ffb900"/>
+            </svg>
+            start
+        </button>
+        <div class="taskbar-divider"></div>
+        <div class="task-tabs" id="taskTabs">
+            <!-- Active tabs populated dynamically -->
+        </div>
+        <div class="tray">
+            <svg width="16" height="16" viewBox="0 0 32 32"><path d="M2 16h28M16 2v28" stroke="#3b82f6" stroke-width="4"/></svg>
+            <span id="clock">12:00 PM</span>
+        </div>
+    </div>
+
+    <!-- Shut Down Overlay -->
+    <div id="shutdownOverlay" class="fixed inset-0 bg-[#000055] z-[9999] hidden flex items-center justify-center text-white">
+        <div class="text-center space-y-4 font-sans">
+            <p class="text-3xl font-light">Windows is shutting down...</p>
+            <button class="win-btn text-black px-6 py-2 mt-4 font-bold" onclick="location.reload()">Restart XP System</button>
+        </div>
+    </div>
+
+    <script>
+        // Initial default blog posts (Simulating Method 2 Markdown / Decap CMS datastore)
+        const defaultBlogPosts = [
+            {
+                id: "post1",
+                filename: "Why_WindowsXP_Still_Rules.md",
+                title: "Why Windows XP Bliss Still Rules",
+                date: "2026-10-01",
+                views: 542,
+                content: "=== WHY WINDOWS XP BLISS STILL RULES ===\nDate: October 25, 2001\nAuthor: Retro Blogger\n\nThe iconic Bliss wallpaper—photographed by Charles O'Rear in Napa Valley—represents the absolute pinnacle of early 2000s optimism in personal computing.\n\nCombined with the Luna blue taskbar and the bouncy, friendly window chrome, Windows XP turned computers from cold office tools into vibrant digital playgrounds.",
+                comments: [
+                    { author: "XP_Fanatic", text: "Incredible Bliss wallpaper! Feels just like 2001 again." },
+                    { author: "Netscape_Kid", text: "Classic aesthetic. Love the new markdown CMS setup!" }
+                ]
+            },
+            {
+                id: "post2",
+                filename: "Cyberpunk_Futurism_In_2000.md",
+                title: "Cyberpunk Futurism in the Year 2000",
+                date: "2026-10-02",
+                views: 412,
+                content: "=== CYBERPUNK FUTURISM IN THE YEAR 2000 ===\nDate: November 12, 2001\nAuthor: Retro Blogger\n\nWe spent the turn of the millennium wondering if Y2K would break global infrastructure, while simultaneously marveling at broadband connections and shiny desktop themes.\n\nThe aesthetic of the early web was raw, unpolished, and built with genuine soul.",
+                comments: [
+                    { author: "Dialup_Guru", text: "Those 56k modem symphonies were legendary." }
+                ]
+            },
+            {
+                id: "post3",
+                filename: "Editable_Wallpapers_And_CMS.md",
+                title: "Editable Wallpapers & Markdown CMS",
+                date: "2026-10-03",
+                views: 474,
+                content: "=== EDITABLE WALLPAPERS & MARKDOWN CMS ===\nDate: October 01, 2026\nAuthor: Retro Blogger\n\nYou can now change your desktop background instantly using the Display Properties applet, and write new blog posts directly through the Decap CMS admin window without touching core source code!",
+                comments: [
+                    { author: "Admin", text: "Welcome to the fully upgraded retro weblog OS!" }
+                ]
+            }
+        ];
+
+        // Guestbook global signers
+        let guestbookComments = [
+            { author: "Site Admin", text: "Welcome to my Bliss desktop weblog! Sign the guestbook below." },
+            { author: "RetroUser99", text: "This OS simulation is top tier. Love the custom wallpaper tool!" }
+        ];
+
+        let totalViews = 1428;
+
+        // Load state from localStorage if available
+        let blogPosts = JSON.parse(localStorage.getItem('xp_blog_posts')) || defaultBlogPosts;
+        let savedWallpaper = localStorage.getItem('xp_wallpaper_url');
+        if (savedWallpaper) {
+            document.getElementById('mainBody').style.backgroundImage = `url('${savedWallpaper}')`;
+        }
+
+        let highestZIndex = 50;
+        const openWindows = new Set(['myDocsWindow']);
+        let activeReadingPostId = null;
+
+        function saveToStorage() {
+            localStorage.setItem('xp_blog_posts', JSON.stringify(blogPosts));
+        }
+
+        function focusWindow(windowId) {
+            const win = document.getElementById(windowId);
+            highestZIndex++;
+            win.style.zIndex = highestZIndex;
+            
+            document.querySelectorAll('.task-tab').forEach(tab => tab.classList.remove('active'));
+            const tab = document.getElementById(`tab-${windowId}`);
+            if (tab) tab.classList.add('active');
+        }
+
+        function openWindow(windowId) {
+            const win = document.getElementById(windowId);
+            win.classList.remove('minimized');
+            focusWindow(windowId);
+            if (!openWindows.has(windowId)) {
+                openWindows.add(windowId);
+                createTaskTab(windowId);
+            }
+            if (windowId === 'myDocsWindow') renderBlogFileList();
+            if (windowId === 'guestbookWindow') renderGuestbookStats();
+        }
+
+        function closeWindow(windowId) {
+            const win = document.getElementById(windowId);
+            win.classList.add('minimized');
+            openWindows.delete(windowId);
+            removeTaskTab(windowId);
+        }
+
+        function minimizeWindow(windowId) {
+            const win = document.getElementById(windowId);
+            win.classList.add('minimized');
+            const tab = document.getElementById(`tab-${windowId}`);
+            if (tab) tab.classList.remove('active');
+        }
+
+        function maximizeWindow(windowId) {
+            const win = document.getElementById(windowId);
+            if (win.dataset.maximized === "true") {
+                win.style.top = win.dataset.prevTop;
+                win.style.left = win.dataset.prevLeft;
+                win.style.width = win.dataset.prevWidth;
+                win.style.height = win.dataset.prevHeight;
+                win.dataset.maximized = "false";
+            } else {
+                win.dataset.prevTop = win.style.top;
+                win.dataset.prevLeft = win.style.left;
+                win.dataset.prevWidth = win.style.width;
+                win.dataset.prevHeight = win.style.height;
+                win.style.top = "0px";
+                win.style.left = "0px";
+                win.style.width = "100%";
+                win.style.height = "calc(100vh - 38px)";
+                win.dataset.maximized = "true";
+            }
+            focusWindow(windowId);
+        }
+
+        function createTaskTab(windowId) {
+            const tabsContainer = document.getElementById('taskTabs');
+            const winTitle = document.querySelector(`#${windowId} .title-bar span`).innerText;
+            
+            const tab = document.createElement('div');
+            tab.id = `tab-${windowId}`;
+            tab.className = 'task-tab active';
+            tab.innerHTML = `<span>${winTitle}</span>`;
+            tab.onclick = () => {
+                const win = document.getElementById(windowId);
+                if (win.classList.contains('minimized')) {
+                    openWindow(windowId);
+                } else if (win.style.zIndex < highestZIndex) {
+                    focusWindow(windowId);
+                } else {
+                    minimizeWindow(windowId);
+                }
+            };
+            tabsContainer.appendChild(tab);
+        }
+
+        function removeTaskTab(windowId) {
+            const tab = document.getElementById(`tab-${windowId}`);
+            if (tab) tab.remove();
+        }
+
+        // Render Markdown file list in My Documents
+        function renderBlogFileList() {
+            const container = document.getElementById('blogFileList');
+            container.innerHTML = '';
+            blogPosts.forEach(post => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between p-2 hover:bg-blue-100 cursor-pointer rounded border border-transparent hover:border-blue-300';
+                item.onclick = () => openBlogPost(post.id);
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <svg width="24" height="24" viewBox="0 0 32 32"><rect x="6" y="2" width="20" height="28" fill="#fff" stroke="#444"/><path d="M10 8h12M10 12h12M10 16h8" stroke="#666" stroke-width="2"/></svg>
+                        <div>
+                            <p class="text-xs font-bold text-blue-900">${escapeHtml(post.filename)}</p>
+                            <p class="text-[10px] text-gray-500">${post.date} | Views: ${post.views} | Comments: ${post.comments.length}</p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-mono">Markdown</span>
+                `;
+                container.appendChild(item);
+            });
+            document.getElementById('fileCountStatus').innerText = `${blogPosts.length} object(s)`;
+        }
+
+        // Open blog post in Notepad viewer and increment view count
+        function openBlogPost(postId) {
+            const post = blogPosts.find(p => p.id === postId);
+            if (!post) return;
+            
+            post.views++;
+            totalViews++;
+            saveToStorage();
+
+            activeReadingPostId = postId;
+            document.getElementById('notepadTitle').innerText = `${post.filename} - Notepad`;
+            document.getElementById('notepadContent').value = post.content;
+            openWindow('notepadWindow');
+        }
+
+        // Publish new blog post from Decap CMS admin panel
+        function publishNewBlogPost() {
+            const filenameInput = document.getElementById('adminFileName').value.trim() || `post_${Date.now()}.md`;
+            const titleInput = document.getElementById('adminTitle').value.trim() || "Untitled Blog Entry";
+            const bodyInput = document.getElementById('adminBody').value.trim() || "No content provided.";
+
+            const newId = `post_${Date.now()}`;
+            const newPost = {
+                id: newId,
+                filename: filenameInput.endsWith('.md') || filenameInput.endsWith('.txt') ? filenameInput : filenameInput + '.md',
+                title: titleInput,
+                date: new Date().toISOString().split('T')[0],
+                views: 1,
+                content: `=== ${titleInput.toUpperCase()} ===\nDate: ${new Date().toLocaleDateString()}\nAuthor: Retro Blogger\n\n${bodyInput}`,
+                comments: []
+            };
+
+            blogPosts.unshift(newPost);
+            saveToStorage();
+            renderBlogFileList();
+
+            document.getElementById('adminFileName').value = '';
+            document.getElementById('adminTitle').value = '';
+            document.getElementById('adminBody').value = '';
+
+            closeWindow('adminWindow');
+            openWindow('myDocsWindow');
+        }
+
+        // Submit comment directly on the currently viewed blog post
+        function submitPostComment() {
+            if (!activeReadingPostId) return;
+            const author = document.getElementById('postCommentAuthor').value.trim() || "Anonymous Traveler";
+            const text = document.getElementById('postCommentText').value.trim();
+            if (!text) return;
+
+            const post = blogPosts.find(p => p.id === activeReadingPostId);
+            if (post) {
+                post.comments.push({ author, text });
+                saveToStorage();
+                document.getElementById('postCommentText').value = '';
+                alert(`Comment successfully posted to ${post.filename}!`);
+            }
+        }
+
+        // Render Guestbook statistics and comments feed
+        function renderGuestbookStats() {
+            let totalCommentsCount = guestbookComments.length;
+            blogPosts.forEach(p => totalCommentsCount += p.comments.length);
+
+            document.getElementById('statTotalViews').innerText = totalViews.toLocaleString();
+            document.getElementById('statPostCount').innerText = blogPosts.length;
+            document.getElementById('statCommentCount').innerText = totalCommentsCount;
+
+            const feed = document.getElementById('globalCommentFeed');
+            feed.innerHTML = '';
+
+            // Render general guestbook signers
+            guestbookComments.forEach(c => {
+                const p = document.createElement('p');
+                p.innerHTML = `<span class="text-blue-700">[Guestbook]</span> <strong>[${escapeHtml(c.author)}]</strong>: ${escapeHtml(c.text)}`;
+                feed.appendChild(p);
+            });
+
+            // Render latest blog post comments
+            blogPosts.forEach(post => {
+                post.comments.forEach(c => {
+                    const p = document.createElement('p');
+                    p.innerHTML = `<span class="text-purple-700">[${escapeHtml(post.filename)}]</span> <strong>[${escapeHtml(c.author)}]</strong>: ${escapeHtml(c.text)}`;
+                    feed.appendChild(p);
+                });
+            });
+        }
+
+        // Add Guestbook entry
+        function addGuestbookComment() {
+            const author = document.getElementById('visitorName').value.trim() || "XP Traveler";
+            const text = document.getElementById('visitorComment').value.trim();
+            if (!text) return;
+
+            guestbookComments.push({ author, text });
+            document.getElementById('visitorName').value = '';
+            document.getElementById('visitorComment').value = '';
+            renderGuestbookStats();
+        }
+
+        // Wallpaper Customizer functions
+        function setPresetWallpaper(url) {
+            document.getElementById('wallpaperInput').value = url;
+        }
+
+        function applyCustomWallpaper() {
+            const url = document.getElementById('wallpaperInput').value.trim();
+            if (!url) return;
+            document.getElementById('mainBody').style.backgroundImage = `url('${url}')`;
+            localStorage.setItem('xp_wallpaper_url', url);
+            closeWindow('displayWindow');
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function toggleStartMenu() {
+            const menu = document.getElementById('startMenu');
+            menu.classList.toggle('open');
+        }
+
+        window.onclick = function(e) {
+            const startMenu = document.getElementById('startMenu');
+            const startBtn = document.querySelector('.start-btn');
+            if (!startMenu.contains(e.target) && !startBtn.contains(e.target)) {
+                startMenu.classList.remove('open');
+            }
+        }
+
+        let draggingWindow = null;
+        let startX, startY, initialX, initialY;
+
+        function startDrag(e, windowId) {
+            if (e.target.classList.contains('title-btn')) return;
+            draggingWindow = document.getElementById(windowId);
+            focusWindow(windowId);
+            startX = e.clientX;
+            startY = e.clientY;
+            initialX = draggingWindow.offsetLeft;
+            initialY = draggingWindow.offsetTop;
+
+            document.addEventListener('mousemove', dragWindow);
+            document.addEventListener('mouseup', stopDrag);
+        }
+
+        function dragWindow(e) {
+            if (!draggingWindow) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            draggingWindow.style.left = `${initialX + dx}px`;
+            draggingWindow.style.top = `${initialY + dy}px`;
+        }
+
+        function stopDrag() {
+            draggingWindow = null;
+            document.removeEventListener('mousemove', dragWindow);
+            document.removeEventListener('mouseup', stopDrag);
+        }
+
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+            document.getElementById('clock').innerText = `${hours}:${minutes} ${ampm}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        function triggerShutdown() {
+            document.getElementById('startMenu').classList.remove('open');
+            document.getElementById('shutdownOverlay').classList.remove('hidden');
+        }
+
+        window.onload = function() {
+            createTaskTab('myDocsWindow');
+            renderBlogFileList();
+        }
+    </script>
+</body>
+</html>
